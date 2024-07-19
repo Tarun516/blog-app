@@ -1,10 +1,11 @@
+import conf from "../conf/conf.js";
 import { Client, ID, Databases, Storage, Query } from "appwrite";
-import conf from "../conf/conf";
 
 export class Service {
   client = new Client();
   databases;
   bucket;
+
   constructor() {
     this.client
       .setEndpoint(conf.appwriteUrl)
@@ -17,7 +18,7 @@ export class Service {
     try {
       return await this.databases.createDocument(
         conf.appwriteDatabaseId,
-        cong.appwriteCollectionId,
+        conf.appwriteCollectionId,
         slug,
         {
           title,
@@ -28,8 +29,7 @@ export class Service {
         }
       );
     } catch (error) {
-      console.log(error);
-      return false;
+      console.log("Appwrite serive :: createPost :: error", error);
     }
   }
 
@@ -47,8 +47,7 @@ export class Service {
         }
       );
     } catch (error) {
-      console.log(error);
-      return false;
+      console.log("Appwrite serive :: updatePost :: error", error);
     }
   }
 
@@ -59,23 +58,22 @@ export class Service {
         conf.appwriteCollectionId,
         slug
       );
-
       return true;
     } catch (error) {
-      console.log(error);
+      console.log("Appwrite serive :: deletePost :: error", error);
       return false;
     }
   }
 
   async getPost(slug) {
     try {
-      await this.databases.getDocument(
+      return await this.databases.getDocument(
         conf.appwriteDatabaseId,
         conf.appwriteCollectionId,
         slug
       );
     } catch (error) {
-      console.log(error);
+      console.log("Appwrite serive :: getPost :: error", error);
       return false;
     }
   }
@@ -84,20 +82,26 @@ export class Service {
     try {
       return await this.databases.listDocuments(
         conf.appwriteDatabaseId,
-        cong.appwriteCollectionId,
+        conf.appwriteCollectionId,
         queries
       );
     } catch (error) {
-      console.log(error);
+      console.log("Appwrite serive :: getPosts :: error", error);
       return false;
     }
   }
 
+  // file upload service
+
   async uploadFile(file) {
     try {
-      return this.bucket.createFile(conf.appwriteBucketId, ID.unique(), file);
+      return await this.bucket.createFile(
+        conf.appwriteBucketId,
+        ID.unique(),
+        file
+      );
     } catch (error) {
-      console.log(error);
+      console.log("Appwrite serive :: uploadFile :: error", error);
       return false;
     }
   }
@@ -105,8 +109,9 @@ export class Service {
   async deleteFile(fileId) {
     try {
       await this.bucket.deleteFile(conf.appwriteBucketId, fileId);
+      return true;
     } catch (error) {
-      console.log(error);
+      console.log("Appwrite serive :: deleteFile :: error", error);
       return false;
     }
   }
@@ -117,5 +122,4 @@ export class Service {
 }
 
 const service = new Service();
-
-export default Service;
+export default service;
